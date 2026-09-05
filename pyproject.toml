@@ -1,0 +1,36 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "counterexample"
+version = "0.1.0"
+description = "A deterministic simulator that hunts for the schedule that breaks your consensus algorithm, then shrinks it until a human can read it"
+readme = "README.md"
+requires-python = ">=3.8"
+license = {text = "MIT"}
+authors = [{name = "Aditya S"}]
+keywords = ["raft", "consensus", "distributed-systems", "deterministic-simulation",
+            "fuzzing", "linearizability", "property-based-testing", "shrinking"]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Topic :: Software Development :: Testing",
+  "Topic :: System :: Distributed Computing",
+  "License :: OSI Approved :: MIT License",
+]
+# Zero runtime dependencies. A reproduction that needs a dependency resolver to
+# replay is not much of a reproduction.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.scripts]
+cx = "cx.__main__:main"
+
+[tool.setuptools.packages.find]
+include = ["cx*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = [".", "tests"]

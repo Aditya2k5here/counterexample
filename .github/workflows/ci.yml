@@ -1,0 +1,32 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.9", "3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: pip install pytest
+      - run: PYTHONPATH=.:tests pytest tests -q
+      # The claim this project lives or dies on: the correct implementation
+      # survives an adversarial search. If this step ever fails, the checkers
+      # are wrong and every number in the README is worthless.
+      - name: correct implementation survives 400 adversarial schedules
+        run: |
+          PYTHONPATH=. python -c "
+          from cx.search.fuzz import search
+          for method in ('random', 'coverage', 'bandit'):
+              r = search(method, bugs=(), budget=140, seed=0)
+              assert not r.found, (method, r.failure.summary())
+              print(method, 'clean over', r.trials, 'schedules')
+          "
